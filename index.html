@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>SURVIVE 10</title>
+<link rel="stylesheet" href="style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div id="game-root">
+    <div id="phaser-container"></div>
+
+    <!-- ================= MAIN MENU ================= -->
+    <section id="screen-menu" class="screen active">
+      <div class="menu-panel">
+        <div class="menu-eyebrow">QUARANTINE ZONE / SECTOR 10</div>
+        <h1 class="game-title">SURVIVE<span class="title-accent">10</span></h1>
+        <p class="game-subtitle">the city is empty. it is not quiet.</p>
+        <div class="menu-buttons">
+          <button class="btn btn-primary" id="btn-play">ENTER THE CITY <span aria-hidden="true">↗</span></button>
+          <button class="btn" id="btn-howto">HOW TO PLAY</button>
+          <button class="btn" id="btn-settings">SETTINGS</button>
+        </div>
+        <div class="menu-stats" id="menu-best-run"></div>
+      </div>
+    </section>
+
+    <!-- ================= HOW TO PLAY ================= -->
+    <section id="screen-howto" class="screen">
+      <div class="menu-panel wide">
+        <h2 class="screen-heading">HOW TO PLAY</h2>
+        <div class="howto-grid">
+          <div class="howto-item">
+            <span class="howto-tag">MOVE</span>
+            <p>WASD or arrow keys move your survivor around the arena. The camera follows you.</p>
+          </div>
+          <div class="howto-item">
+            <span class="howto-tag">FIGHT</span>
+            <p>Stay on the roads. Aim with your mouse and hold the left button to fire. Release it for automatic targeting. SPACE fires a bonus shot. City blocks stop movement and bullets.</p>
+          </div>
+          <div class="howto-item">
+            <span class="howto-tag">COLLECT</span>
+            <p>Defeated enemies drop experience shards. Walk over them to pick them up.</p>
+          </div>
+          <div class="howto-item">
+            <span class="howto-tag">LEVEL UP</span>
+            <p>Filling the experience bar levels you up. The game pauses so you can pick an upgrade.</p>
+          </div>
+          <div class="howto-item">
+            <span class="howto-tag">UPGRADE</span>
+            <p>Choose one of three random upgrades each level. Builds get stronger as the run goes on.</p>
+          </div>
+          <div class="howto-item">
+            <span class="howto-tag">SURVIVE</span>
+            <p>Hold out for 10 minutes, then defeat the boss that arrives. That's the whole objective.</p>
+          </div>
+          <div class="howto-item">
+            <span class="howto-tag">CHOOSE</span>
+            <p>Before each run, pick a survivor. Each one trades a strength for a weakness, so builds play differently from the start.</p>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btn-howto-back">BACK</button>
+      </div>
+    </section>
+
+    <!-- ================= CHARACTER SELECT ================= -->
+    <section id="screen-select" class="screen">
+      <div class="menu-panel wide">
+        <h2 class="screen-heading">CHOOSE YOUR SURVIVOR</h2>
+        <p class="screen-sub">Each one changes how the run plays</p>
+        <fieldset class="armory"><legend>CHOOSE YOUR COMPANION WEAPON</legend><label><input type="radio" name="companion" value="shotgun" checked> ⋔ SCATTERGUN <small>Close-range pellet spread</small></label><label><input type="radio" name="companion" value="arc"> ϟ ARC COIL <small>Lightning chains through crowds</small></label></fieldset>
+        <div class="character-cards" id="character-cards"></div>
+        <button class="btn" id="btn-select-back">BACK</button>
+      </div>
+    </section>
+
+    <!-- ================= SETTINGS ================= -->
+    <section id="screen-settings" class="screen">
+      <div class="menu-panel">
+        <h2 class="screen-heading">SETTINGS</h2>
+        <div class="settings-row settings-row-slider">
+          <span>SOUND EFFECTS</span>
+          <input type="range" id="slider-sfx" min="0" max="100" value="100" class="slider">
+        </div>
+        <div class="settings-row settings-row-slider">
+          <span>MUSIC</span>
+          <input type="range" id="slider-music" min="0" max="100" value="50" class="slider">
+        </div>
+        <div class="settings-row">
+          <span>PERFORMANCE MODE</span>
+          <label class="switch">
+            <input type="checkbox" id="toggle-graphics">
+            <span class="switch-track"></span>
+          </label>
+        </div>
+        <p class="settings-hint">Performance mode trims decoration and effects for smoother play on slower devices.</p>
+        <button class="btn btn-primary" id="btn-settings-back">BACK</button>
+      </div>
+    </section>
+
+    <!-- ================= HUD ================= -->
+    <div id="hud" class="hidden">
+      <div class="hud-topleft">
+        <div class="hud-row">
+          <span class="hud-label">LV</span>
+          <span class="hud-level" id="hud-level">1</span>
+        </div>
+        <div class="bar bar-health">
+          <div class="bar-fill" id="hud-health-fill"></div>
+          <span class="bar-text" id="hud-health-text">100 / 100</span>
+        </div>
+        <div class="bar bar-exp">
+          <div class="bar-fill" id="hud-exp-fill"></div>
+        </div>
+      </div>
+
+      <div class="hud-topcenter">
+        <span id="hud-timer">10:00</span>
+      </div>
+
+      <div class="hud-topright">
+        <div class="hud-stat"><span class="hud-label">KILLS</span><span id="hud-kills">0</span></div>
+        <div class="hud-stat"><span class="hud-label">SCORE</span><span id="hud-score">0</span></div>
+      </div>
+
+      <div class="hud-bottom">
+        <span class="hud-weapon-name" id="hud-weapon-name">Scrap Blaster</span>
+        <span class="hud-weapon-detail" id="hud-weapon-detail">DMG 10 · SPD 1.0/s</span>
+      </div>
+
+      <aside id="mission-hud" aria-label="Run missions"></aside><div id="buff-hud"></div><div id="content-toast" role="status"></div>
+      <div class="hud-hint" id="hud-hint">Mouse: aim / hold to fire · SPACE: bonus · ESC: pause</div>
+    </div>
+
+    <!-- ================= BOSS BANNER + HEALTH BAR ================= -->
+    <div id="boss-banner" class="hidden">
+      <div class="boss-warning">WARNING</div>
+      <div class="boss-name" id="boss-banner-name">THE OVERSEER HAS ARRIVED</div>
+    </div>
+    <div id="boss-healthbar" class="hidden">
+      <div class="boss-hb-label" id="boss-hb-label">THE OVERSEER</div>
+      <div class="boss-hb-track"><div class="boss-hb-fill" id="boss-hb-fill"></div></div>
+    </div>
+
+    <!-- ================= LEVEL UP ================= -->
+    <section id="screen-levelup" class="screen">
+      <div class="menu-panel wide">
+        <h2 class="screen-heading">LEVEL UP</h2>
+        <p class="screen-sub">Choose an upgrade</p>
+        <div class="upgrade-cards" id="upgrade-cards"></div>
+      </div>
+    </section>
+
+    <!-- ================= PAUSE ================= -->
+    <section id="screen-pause" class="screen">
+      <div class="menu-panel">
+        <h2 class="screen-heading">PAUSED</h2>
+        <div class="menu-buttons">
+          <button class="btn btn-primary" id="btn-resume">RESUME</button>
+          <button class="btn" id="btn-restart-pause">RESTART</button>
+          <button class="btn" id="btn-settings-pause">SETTINGS</button>
+          <button class="btn" id="btn-menu-pause">MAIN MENU</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= GAME OVER ================= -->
+    <section id="screen-gameover" class="screen">
+      <div class="menu-panel">
+        <h2 class="screen-heading heading-danger">YOU DIED</h2>
+        <div class="results-grid" id="gameover-stats"></div>
+        <div class="menu-buttons">
+          <button class="btn btn-primary" id="btn-tryagain">TRY AGAIN</button>
+          <button class="btn" id="btn-menu-gameover">MAIN MENU</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= VICTORY ================= -->
+    <section id="screen-victory" class="screen">
+      <div class="menu-panel">
+        <h2 class="screen-heading heading-victory">YOU SURVIVED</h2>
+        <div class="results-grid" id="victory-stats"></div>
+        <div class="menu-buttons">
+          <button class="btn btn-primary" id="btn-playagain">PLAY AGAIN</button>
+          <button class="btn" id="btn-menu-victory">MAIN MENU</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="js/phaser.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/save.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/weapons.js"></script>
+  <script src="js/roads.js"></script>
+  <script src="js/enemy.js"></script>
+  <script src="js/boss.js"></script>
+  <script src="js/upgrades.js"></script>
+  <script src="js/expansion.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/visuals.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
